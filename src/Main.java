@@ -105,5 +105,7 @@ public class Main {
         else{
             System.out.println("Результат: введенное значение не является целым числом");
         }
+        System.out.println();
+        System.out.println("Для демонстрации git merge");
     }
 }
