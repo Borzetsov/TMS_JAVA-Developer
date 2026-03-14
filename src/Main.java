@@ -4,7 +4,7 @@ import java.util.Scanner;
 /**
  * Домашнее задание №4
  * @author Aleksei Borzetsov
- * 03/13/26
+ * 03/14/26
  */
 
 public class Main {
