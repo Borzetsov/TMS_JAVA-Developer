@@ -178,8 +178,8 @@ public class Main {
         System.out.printf("%2d]", array[arrayLength - 1]);
         System.out.println();
         /*Определить количество возможных перестановок*/
-        int switchAmount = (int)(arrayLength / 2);
-        int tmp = 0;        //Временное хранилище
+        int switchAmount = arrayLength / 2;
+        int tmp;        //Временное хранилище
         //Отзеркалить массив
         for (int i = 0, j = arrayLength - 1; i < switchAmount; i++, j--){
             tmp = mirrorArray[i];
