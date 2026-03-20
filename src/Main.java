@@ -5,6 +5,7 @@
 
 public class Main {
     public static void main(String[] args){
-        System.out.println("Main branch");
+        HomeWork1 hw1 = new HomeWork1();
+        hw1.run();
     }
 }
