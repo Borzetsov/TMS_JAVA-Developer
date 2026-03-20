@@ -5,7 +5,7 @@
 
 public class Main {
     public static void main(String[] args){
-        HomeWork4 hw4 = new HomeWork4();
-        hw4.run();
+        HomeWork5 hw5 = new HomeWork5();
+        hw5.run();
     }
 }
