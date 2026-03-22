@@ -1,11 +1,15 @@
 /**
- * @author Aleksei Borzetsov
- * 03/17/26
+ * Classname    Main
+ * @version     0.07
+ * @author      Aleksei Borzetsov
+ * date         22.03.2026
  */
+
+import HomeWork7.HomeWork7;
 
 public class Main {
     public static void main(String[] args){
-        HomeWork5 hw5 = new HomeWork5();
-        hw5.run();
+        HomeWork7 hw7 = new HomeWork7();
+        hw7.run();
     }
 }
