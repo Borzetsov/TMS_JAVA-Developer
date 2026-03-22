@@ -7,8 +7,6 @@
  
 package HomeWork7;
 
-import java.awt.geom.Point2D;
-
 public class HomeWork7 {
 
     public void run() {
