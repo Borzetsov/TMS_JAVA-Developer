@@ -23,8 +23,10 @@ public class Circle extends Shape {
      * @param radius    радиус окружности
      */
     public Circle(Point2D point, double radius) {
-        super.points = new Point2D[1];
-        super.points[0] = point;
+        Point2D[] tmpPoints = new Point2D[1];
+        tmpPoints = new Point2D[1];
+        tmpPoints[0] = point;
+        super.setPoints(tmpPoints);
         this.radius = radius;
     }
 

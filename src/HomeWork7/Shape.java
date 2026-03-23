@@ -15,7 +15,7 @@ import java.awt.geom.Point2D;
 public abstract class Shape {
 
     //У всех фигур есть некоторый набор точек
-    public Point2D[] points;
+    private Point2D[] points;
 
     /**
      * Вычисляет площадь
@@ -28,4 +28,20 @@ public abstract class Shape {
      * @return  периметр
      */
     public abstract double countPerimeter();    //Найти периметр
+
+    /**
+     * Задать точки фигуры
+     * @param points    массив точек фигуры
+     */
+    public void setPoints(Point2D[] points) {
+        this.points = points;
+    }
+
+    /**
+     * Получить массив точек фигуры
+     * @return  массив точек фигуры
+     */
+    public Point2D[] getPoints() {
+        return this.points;
+    }
 }

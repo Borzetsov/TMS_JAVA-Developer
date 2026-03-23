@@ -21,10 +21,11 @@ public class Triangle extends Shape {
      * @param pointC    третья точка
      */
     public Triangle(Point2D pointA, Point2D pointB, Point2D pointC) {
-        super.points = new Point2D[3];
-        super.points[0] = pointA;
-        super.points[1] = pointB;
-        super.points[2] = pointC;
+        Point2D[] tmpPoints = new Point2D[3];
+        tmpPoints[0] = pointA;
+        tmpPoints[1] = pointB;
+        tmpPoints[2] = pointC;
+        super.setPoints(tmpPoints);
     }
 
     /**
@@ -33,10 +34,11 @@ public class Triangle extends Shape {
      */
     @Override
     public double countArea() {
+        Point2D[] tmpPoints = super.getPoints();
         //Определить длины сторон
-        double sideA = super.points[0].distance((super.points[1]));
-        double sideB = super.points[1].distance((super.points[2]));
-        double sideC = super.points[2].distance((super.points[0]));
+        double sideA = tmpPoints[0].distance((tmpPoints[1]));
+        double sideB = tmpPoints[1].distance((tmpPoints[2]));
+        double sideC = tmpPoints[2].distance((tmpPoints[0]));
         //Формула Герона
         double p = (sideA + sideB + sideC) / 2;
         return Math.sqrt(p * (p - sideA) * (p - sideB) * (p - sideC));
@@ -48,9 +50,10 @@ public class Triangle extends Shape {
      */
     @Override
     public double countPerimeter() {
-        double perimeter = super.points[0].distance(super.points[1]);
-        perimeter += super.points[1].distance(super.points[2]);
-        perimeter += super.points[2].distance(super.points[0]);
+        Point2D[] tmpPoints = super.getPoints();
+        double perimeter = tmpPoints[0].distance(tmpPoints[1]);
+        perimeter += tmpPoints[1].distance(tmpPoints[2]);
+        perimeter += tmpPoints[2].distance(tmpPoints[0]);
         return perimeter;
     }
 }

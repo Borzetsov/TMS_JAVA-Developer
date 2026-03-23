@@ -24,8 +24,10 @@ public class Rectangle extends Shape {
      * @param height    высота
      */
     public Rectangle(Point2D point, double width, double height) {
-        super.points = new Point2D[1];
-        super.points[0] = point;
+        Point2D[] tmpPoints = new Point2D[1];
+        tmpPoints = new Point2D[1];
+        tmpPoints[0] = point;
+        super.setPoints(tmpPoints);
         this.width = width;
         this.height = height;
     }
