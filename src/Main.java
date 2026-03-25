@@ -1,3 +1,5 @@
+import HomeWork6.HomeWork6;
+
 /**
  * Classname    Main
  * @version     0.07
