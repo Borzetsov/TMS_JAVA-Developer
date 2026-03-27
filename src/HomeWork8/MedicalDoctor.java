@@ -7,6 +7,8 @@
  
 package HomeWork8;
 
-public abstract class MedicalDoctor {
+public interface MedicalDoctor {
 
+    public void cure(Patient patient);
+    public String getName();
 }
