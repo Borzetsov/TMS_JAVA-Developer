@@ -1,6 +1,6 @@
 /**
  * Classname    Therapist
- * @version     0.02
+ * @version     0.03
  * @author      Aleksei Borzetsov
  * date         27.03.2026
  */
@@ -8,8 +8,6 @@
 package HomeWork8;
 
 public class TherapistMedicalDoctorImpl implements MedicalDoctor {
-
-    public static int MD_CODE = 0;
 
     private String name;
 
@@ -19,9 +17,8 @@ public class TherapistMedicalDoctorImpl implements MedicalDoctor {
 
     @Override
     public void cure(Patient patient) {
-        System.out.println("Терапевт " + this.name + "ведет прием пациента " +
+        System.out.println("Терапевт " + this.name + " ведет прием пациента " +
                            patient.getName() + ".");
-        this.assignDoctor(patient);
         System.out.println("Прием окончен.");
     }
 
@@ -30,18 +27,16 @@ public class TherapistMedicalDoctorImpl implements MedicalDoctor {
         return this.name;
     }
 
-    private void assignDoctor(Patient patient) {
+    public void assignDoctor(Clinic clinic, Patient patient) {
         int treatmentPlanOfThePatient = patient.getTreatmentPlan();
-        if (treatmentPlanOfThePatient == SurgeonMedicalDoctorImpl.MD_CODE) {
-
+        if (treatmentPlanOfThePatient == Clinic.SURGEON_CODE) {
+            patient.setDoctor(clinic.getSurgeon());
         }
-        else if (treatmentPlanOfThePatient == DentistMedicalDoctorImpl.MD_CODE) {
-
+        else if (treatmentPlanOfThePatient == Clinic.DENTIST_CODE) {
+            patient.setDoctor(clinic.getDentist());
         }
         else {
-
+            patient.setDoctor(this);
         }
-        System.out.println("Терапевт " + this.name + "назначает пациенту " +
-                patient.getName() + " прием у врача ");
     }
 }
