@@ -25,7 +25,7 @@ public class HomeWork8 {
         clinic.admitPatient(patient1);
         System.out.println();
 
-        System.out.println("Задача 2");
+        System.out.println("Задача *");
         System.out.println();
         Apple apple = new Apple();
         apple.printColor();
