@@ -9,4 +9,8 @@ package HomeWork9;
 
 public abstract class PredatoryAnimal extends Animal {
 
+    @Override
+    public String getAnimalSpecies() {
+        return "Неизвестное хищное животное";
+    }
 }
