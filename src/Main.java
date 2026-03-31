@@ -8,7 +8,7 @@
 import HomeWork10.HomeWork10;
 
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) throws CloneNotSupportedException {
         HomeWork10 hw10 = new HomeWork10();
         hw10.run();
     }
