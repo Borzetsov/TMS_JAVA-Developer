@@ -48,5 +48,36 @@ public class HomeWork12 {
         else {
             System.out.println("Аббревиатуры не обнаружены");
         }
+        System.out.println();
+
+        System.out.println("Задача *");
+        System.out.println();
+
+        System.out.println("Задача предполагает ввод текста.");
+        System.out.println("Предложение <Конец текста.> означает конец ввода.");
+        System.out.println("Введите текст");
+
+        //Хранит весь текст
+        StringBuilder userText = new StringBuilder();
+
+        do {
+            userString = consoleScanner.nextLine();
+            userText.append(userString);
+        } while (!userString.contains("Конец текста."));
+
+        //Для поиска документов
+        Pattern docIDPattern = Pattern.compile("");
+        Matcher docIDMatcher = docIDPattern.matcher(userText);
+        StringBuilder foundDocs = new StringBuilder();
+
+        //Для поиска номеров телефонов
+        Pattern phonePattern = Pattern.compile("");
+        Matcher phoneMatcher = phonePattern.matcher(userText);
+        StringBuilder foundPhones = new StringBuilder();
+
+        //Для поиска электронной почты
+        Pattern emailPattern = Pattern.compile("");
+        Matcher emailMatcher = emailPattern.matcher(userText);
+        StringBuilder foundEmails = new StringBuilder();
     }
 }
