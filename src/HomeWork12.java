@@ -63,21 +63,73 @@ public class HomeWork12 {
         do {
             userString = consoleScanner.nextLine();
             userText.append(userString);
+            userText.append(" ");
         } while (!userString.contains("Конец текста."));
 
         //Для поиска документов
-        Pattern docIDPattern = Pattern.compile("");
+        Pattern docIDPattern = Pattern.compile("\\b[0-9]{4}-[0-9]{4}-[0-9]{2}\\b");
         Matcher docIDMatcher = docIDPattern.matcher(userText);
         StringBuilder foundDocs = new StringBuilder();
 
+        while(docIDMatcher.find()) {
+            //Добавить подстроку очередного совпадения
+            foundDocs.append(userText, docIDMatcher.start(), docIDMatcher.end());
+            //Добавить разделитель
+            foundDocs.append(", ");
+        }
+        if (!foundDocs.isEmpty()) {
+            //Убрать последний разделитель
+            foundDocs.delete(foundDocs.length() - 2, foundDocs.length());
+            System.out.println("Список номеров документов:");
+            System.out.println(foundDocs);
+        }
+        else {
+            System.out.println("Номера документов не обнаружены");
+        }
+        System.out.println();
+
         //Для поиска номеров телефонов
-        Pattern phonePattern = Pattern.compile("");
+        Pattern phonePattern = Pattern.compile("[+][(][0-9]{2}[)][0-9]{7}\\b");
         Matcher phoneMatcher = phonePattern.matcher(userText);
         StringBuilder foundPhones = new StringBuilder();
 
+        while(phoneMatcher.find()) {
+            //Добавить подстроку очередного совпадения
+            foundPhones.append(userText, phoneMatcher.start(), phoneMatcher.end());
+            //Добавить разделитель
+            foundPhones.append(", ");
+        }
+        if (!foundPhones.isEmpty()) {
+            //Убрать последний разделитель
+            foundPhones.delete(foundPhones.length() - 2, foundPhones.length());
+            System.out.println("Список номеров телефонов:");
+            System.out.println(foundPhones);
+        }
+        else {
+            System.out.println("Номера телефонов не обнаружены");
+        }
+        System.out.println();
+
         //Для поиска электронной почты
-        Pattern emailPattern = Pattern.compile("");
+        Pattern emailPattern = Pattern.compile("\\b[0-9A-Za-zА-Яа-я._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}");
         Matcher emailMatcher = emailPattern.matcher(userText);
         StringBuilder foundEmails = new StringBuilder();
+
+        while(emailMatcher.find()) {
+            //Добавить подстроку очередного совпадения
+            foundEmails.append(userText, emailMatcher.start(), emailMatcher.end());
+            //Добавить разделитель
+            foundEmails.append(", ");
+        }
+        if (!foundEmails.isEmpty()) {
+            //Убрать последний разделитель
+            foundEmails.delete(foundEmails.length() - 2, foundEmails.length());
+            System.out.println("Список адресов электронной почты:");
+            System.out.println(foundEmails);
+        }
+        else {
+            System.out.println("Адресов электронной почты не обнаружены");
+        }
+        System.out.println();
     }
 }
