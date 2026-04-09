@@ -1,15 +1,13 @@
 /**
  * Classname    Main
- * @version     0.10
+ * @version     0.11
  * @author      Aleksei Borzetsov
- * date         31.03.2026
+ * date         04.04.2026
  */
 
-import HomeWork10.HomeWork10;
-
 public class Main {
-    public static void main(String[] args) throws CloneNotSupportedException {
-        HomeWork10 hw10 = new HomeWork10();
-        hw10.run();
+    public static void main(String[] args){
+        HomeWork11 hw11 = new HomeWork11();
+        hw11.run();
     }
 }
