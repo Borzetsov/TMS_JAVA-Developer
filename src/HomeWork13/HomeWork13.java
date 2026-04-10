@@ -7,6 +7,8 @@
  
 package HomeWork13;
 
+import java.io.IOError;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class HomeWork13 {
@@ -33,6 +35,20 @@ public class HomeWork13 {
         }
         else {
             System.out.println("Авторизация пройдена");
+        }
+        System.out.println();
+
+        System.out.println("Задача *");
+        System.out.println();
+
+        try {
+            System.out.println("Вход в блок try");
+            throw new IOException();
+        } catch (IOException e) {
+            System.out.println("Вход в блок catch");
+            System.exit(0);  //Тупо-натупо прерываем прогу
+        } finally {
+            System.out.println("Вход в блок finally");
         }
     }
 }
