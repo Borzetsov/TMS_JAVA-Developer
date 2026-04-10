@@ -43,10 +43,10 @@ public class HomeWork13 {
 
         try {
             System.out.println("Вход в блок try");
+            System.exit(0);  //Тупо-натупо прерываем прогу
             throw new IOException();
         } catch (IOException e) {
             System.out.println("Вход в блок catch");
-            System.exit(0);  //Тупо-натупо прерываем прогу
         } finally {
             System.out.println("Вход в блок finally");
         }
