@@ -1,6 +1,6 @@
 /**
  * Classname    Main
- * @version     0.11
+ * @version     0.13
  * @author      Aleksei Borzetsov
  * date         10.04.2026
  */
