@@ -14,6 +14,8 @@ import java.util.regex.Pattern;
 
 public class HomeWork14 {
 
+    private static final String DOC_PATTERN = "^docnum[a-zA-Z0-9]{9}\\b|^contrac[a-zA-Z0-9]{7}\\b";
+
     public void run() {
         /*Шапка отчета*/
         System.out.println("; Алексей Борзецов | Домашняя работа №14 | Выдано 13.04.2026 ;");
@@ -112,7 +114,7 @@ public class HomeWork14 {
             StringBuilder validDocNumberSB = new StringBuilder();
             StringBuilder invalidDocNumberSB = new StringBuilder();
 
-            Pattern validDocNumPattern = Pattern.compile("^docnum[a-zA-Z0-9]{9}|^contrac[a-zA-Z0-9]{7}");
+            Pattern validDocNumPattern = Pattern.compile(DOC_PATTERN);
             Matcher validDocNumMatcher;
             for (String currentString : splitUserText) {
                 /*Проверка каждой строки*/
