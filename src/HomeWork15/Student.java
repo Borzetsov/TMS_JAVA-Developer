@@ -32,7 +32,7 @@ public class Student {
 
     public void setMark(Courses course, int mark) {
         if (this.marks.containsKey(course.name())) {
-            this.marks.get(course.name()).add(mark);
+            this.marks.get(course.name()).add(Math.min(mark, 5));
         }
     }
 
