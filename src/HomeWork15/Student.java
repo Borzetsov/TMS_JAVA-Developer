@@ -25,10 +25,9 @@ public class Student {
         this.groupName = groupName;
         this.year = 1;
         /*Назначить список предметов*/
-        marks.put("Математика", new ArrayList<>());
-        marks.put("Физика", new ArrayList<>());
-        marks.put("Химия", new ArrayList<>());
-        marks.put("Информатика", new ArrayList<>());
+        for (int i = 0; i < Courses.values().length; i++) {
+            marks.put(Courses.values()[i].toString(), new ArrayList<>());
+        }
     }
 
     public void setMark(Courses course, int mark) {
