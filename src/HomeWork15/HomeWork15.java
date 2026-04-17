@@ -7,9 +7,7 @@
  
 package HomeWork15;
 
-import java.util.HashSet;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,5 +54,45 @@ public class HomeWork15 {
         animals.addAnimal("Собака");
         System.out.println(animals);
         System.out.println();
+
+        System.out.println("Задача 3");
+        System.out.println();
+        /*Сформировать список студентов 1-го курса*/
+        ArrayList<Student> students = new ArrayList<>();
+        students.add(new Student("Александров",     "1255"));
+        students.add(new Student("Белоногова",      "1255"));
+        students.add(new Student("Сидоров",         "1255"));
+        students.add(new Student("Корнелевский",    "1255"));
+        students.add(new Student("Ланг",            "1255"));
+        students.add(new Student("Михайлов",        "1255"));
+        students.add(new Student("Никитин",         "1255"));
+        students.add(new Student("Попов",           "1255"));
+        students.add(new Student("Тимофеев",        "1255"));
+        students.add(new Student("Юлина",           "1255"));
+        students.add(new Student("Арсёнов",     "1215"));
+        students.add(new Student("Жарков",      "1215"));
+        students.add(new Student("Забелин",     "1215"));
+        students.add(new Student("Косогоров",   "1215"));
+        students.add(new Student("Куряев",      "1215"));
+        students.add(new Student("Махалев",     "1215"));
+        students.add(new Student("Перловский",  "1215"));
+        students.add(new Student("Синяков",     "1215"));
+        students.add(new Student("Шиляев",      "1215"));
+        students.add(new Student("Юрков",       "1215"));
+
+        Student.printStudents(students, 1);
+
+        /*Поставить 40 оценок по каждому предмету*/
+        for (int i = 0; i < Courses.values().length; i++) {
+            for (Student currentStudent : students) {
+                for (int j = 0; j < 40; j++) {
+                    currentStudent.setMark(Courses.values()[i], (int)(1.56 + Math.random() * 4));
+                }
+            }
+        }
+        /*Весенний призыв*/
+        Student.session(students);
+        Student.printStudents(students, 1);
+        Student.printStudents(students, 2);
     }
 }
