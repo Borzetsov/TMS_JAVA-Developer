@@ -7,10 +7,7 @@
  
 package HomeWork15;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Student {
     public static final double MINIMAL_AVERAGE_SCORE = 3.0;
@@ -92,5 +89,17 @@ public class Student {
     @Override
     public String toString() {
         return this.getName() + ".\tГруппа:\t" + this.getGroupName();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Student student = (Student) o;
+        return year == student.year && Objects.equals(name, student.name) && Objects.equals(groupName, student.groupName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, groupName, year);
     }
 }

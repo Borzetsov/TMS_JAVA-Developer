@@ -140,7 +140,7 @@ public class HomeWork15 {
         System.out.println("Создан список Student[15]");
         MyArrayList<Student> customStudentList =new MyArrayList<Student>();
         for (int i = 0; i < 15; i++) {
-            customStudentList.add(new Student("Студент" + i, "GroupName"));
+            customStudentList.add(new Student("Студент " + i, "GroupName"));
         }
         System.out.println("Элементов: " + customStudentList.getLength());
         System.out.println(customStudentList);
@@ -149,6 +149,12 @@ public class HomeWork15 {
         System.out.println("Элементов: " + customStudentList.getLength());
         System.out.println(customStudentList);
         System.out.println("Student[9]: " + customStudentList.elementAt(9));
+        System.out.println("Содержится ли элемент \"Студент 1\" из группы \"GroupName\": "
+                + customStudentList.contains(new Student("Студент 1", "GroupName")));
+        System.out.println("Содержится ли элемент \"Студент 1\" из группы \"GroupName1\": "
+                + customStudentList.contains(new Student("Студент 1", "GroupName1")));
+        System.out.println("Содержится ли элемент \"Студент 22\" из группы \"GroupName\": "
+                + customStudentList.contains(new Student("Студент 22", "GroupName")));
         System.out.println("Список очищен");
         customStudentList.clear();
         System.out.println("Элементов: " + customStringList.getLength());
