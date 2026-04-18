@@ -82,11 +82,15 @@ public class Student {
         int i = 1;
         for (Student currentStudent : students) {
             if (currentStudent.getYear() == year) {
-                System.out.println(i + ".\t" + currentStudent.getName() + ".\t"
-                                     + "Группа:\t" + currentStudent.getGroupName() + ".");
+                System.out.println(i + ".\t" + currentStudent + ".");
                 i++;
             }
         }
         System.out.println();
+    }
+
+    @Override
+    public String toString() {
+        return this.getName() + ".\tГруппа:\t" + this.getGroupName();
     }
 }

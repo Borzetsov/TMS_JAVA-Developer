@@ -57,6 +57,7 @@ public class HomeWork15 {
 
         System.out.println("Задача 3");
         System.out.println();
+
         /*Сформировать список студентов 1-го курса*/
         ArrayList<Student> students = new ArrayList<>();
         students.add(new Student("Александров",     "1255"));
@@ -94,5 +95,63 @@ public class HomeWork15 {
         Student.session(students);
         Student.printStudents(students, 1);
         Student.printStudents(students, 2);
+
+        System.out.println("Задача *");
+        System.out.println();
+
+        System.out.println("Демонстрация работы MyArrayList");
+        System.out.println();
+        System.out.println("Создан список Integer[20]");
+        MyArrayList<Integer> customIntegerList = new MyArrayList<Integer>();
+        for (int i = 0; i < 20; i++) customIntegerList.add(i);
+        System.out.println("Элементов: " + customIntegerList.getLength());
+        System.out.println(customIntegerList);
+        System.out.println("Удален Integer[4]");
+        customIntegerList.remove(4);
+        System.out.println("Элементов: " + customIntegerList.getLength());
+        System.out.println(customIntegerList);
+        System.out.println("Integer[4]: " + customIntegerList.elementAt(4));
+        System.out.println("Содержится ли элемент \"8\": " + customIntegerList.contains(8));
+        System.out.println("Содержится ли элемент \"22\": " + customIntegerList.contains(22));
+        System.out.println("Список очищен");
+        customIntegerList.clear();
+        System.out.println("Элементов: " + customIntegerList.getLength());
+        System.out.println(customIntegerList);
+        System.out.println();
+
+        System.out.println("Создан список String[10]");
+        MyArrayList<String> customStringList =new MyArrayList<String>(8);
+        for (int i = 0; i < 10; i++) customStringList.add("Строка " + i);
+        System.out.println("Элементов: " + customStringList.getLength());
+        System.out.println(customStringList);
+        System.out.println("Удален String[7]");
+        customStringList.remove(7);
+        System.out.println("Элементов: " + customStringList.getLength());
+        System.out.println(customStringList);
+        System.out.println("String[2]: " + customStringList.elementAt(2));
+        System.out.println("Содержится ли элемент \"Строка 1\": " + customStringList.contains("Строка 1"));
+        System.out.println("Содержится ли элемент \"Строка 11\": " + customStringList.contains("Строка 11"));
+        System.out.println("Список очищен");
+        customStringList.clear();
+        System.out.println("Элементов: " + customStringList.getLength());
+        System.out.println(customStringList);
+        System.out.println();
+
+        System.out.println("Создан список Student[15]");
+        MyArrayList<Student> customStudentList =new MyArrayList<Student>();
+        for (int i = 0; i < 15; i++) {
+            customStudentList.add(new Student("Студент" + i, "GroupName"));
+        }
+        System.out.println("Элементов: " + customStudentList.getLength());
+        System.out.println(customStudentList);
+        System.out.println("Удален Student[5]");
+        customStudentList.remove(5);
+        System.out.println("Элементов: " + customStudentList.getLength());
+        System.out.println(customStudentList);
+        System.out.println("Student[9]: " + customStudentList.elementAt(9));
+        System.out.println("Список очищен");
+        customStudentList.clear();
+        System.out.println("Элементов: " + customStringList.getLength());
+        System.out.println(customStringList);
     }
 }
