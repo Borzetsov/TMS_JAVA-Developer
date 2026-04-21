@@ -1,15 +1,15 @@
 /**
  * Classname    Main
- * @version     0.14
+ * @version     0.01
  * @author      Aleksei Borzetsov
- * date         14.04.2026
+ * date         21.04.2026
  */
 
-import HomeWork14.HomeWork14;
+import CourseProjectJavaCore.CourseProjectJavaCore;
 
 public class Main {
     public static void main(String[] args){
-        HomeWork14 hw14 = new HomeWork14();
-        hw14.run();
+        CourseProjectJavaCore courseProject = new CourseProjectJavaCore();
+        courseProject.run();
     }
 }
