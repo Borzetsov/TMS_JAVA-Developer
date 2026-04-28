@@ -1,8 +1,8 @@
 /**
  * Classname    Account
- * @version     0.01
+ * @version     0.02
  * @author      Aleksei Borzetsov
- * date         21.04.2026
+ * date         28.04.2026
  */
 
 package CourseProjectJavaCore.model;
@@ -15,6 +15,7 @@ public class Account {
     private static final long DEFAULT_INITIAL_BALANCE = 0L;
 
     public static final String ACCOUNT_REGEXP = "Account: [0-9]{5}-[0-9]{5} Balance: [0-9]+\\b";
+    public static final String ACCOUNT_DATABASE_FILE_EXTENSION = ".txt";
 
     private final String number;
     private long balance;
@@ -34,6 +35,11 @@ public class Account {
         this.balance = DEFAULT_INITIAL_BALANCE;
     }
 
+    /**
+     * Создает аккаунт по записи из базы данных
+     * Проверка записи происходит до вызова конструктора
+     * @param record -- запись
+     */
     public Account(String record) {
         String[] recordComponents = record.split(" ");
         this.number = recordComponents[1];
@@ -63,16 +69,21 @@ public class Account {
         return BalanceChangeStatus.BALANCE_CHANGE_STATUS_OK;
     }
 
-    @Override
-    public String toString() {
-        return "Account: " + this.number + " Balance: " + this.balance;
+    /**
+     * Возможно ли списание со счета
+     * @param value -- запрашиваемая сумма
+     * @return -- статус
+     */
+    public boolean isExpensePossible(long value) {
+        return this.balance >= value;
     }
 
     public String getNumber() {
         return this.number;
     }
 
-    public long getBalance() {
-        return this.balance;
+    @Override
+    public String toString() {
+        return "Account: " + this.number + " Balance: " + this.balance;
     }
 }
