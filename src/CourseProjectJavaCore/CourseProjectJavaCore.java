@@ -9,12 +9,16 @@ package CourseProjectJavaCore;
 
 import CourseProjectJavaCore.model.Account;
 import CourseProjectJavaCore.model.PaymentOrder;
+import CourseProjectJavaCore.model.TransactionReport;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CourseProjectJavaCore {
 
@@ -38,7 +42,7 @@ public class CourseProjectJavaCore {
         System.out.println();
 
         System.out.println("Запись в файл");
-        Path accountFilePath = Path.of("src\\CourseProjectJavaCore\\dataChannels\\");
+        Path accountFilePath = Path.of(Account.DEFAULT_PATH);
         /*Создание директории*/
         if (Files.notExists(accountFilePath)) {
             try {
@@ -50,13 +54,14 @@ public class CourseProjectJavaCore {
         /*Создание файла*/
         Path accountFile = accountFilePath.resolve("accounts" + Account.ACCOUNT_DATABASE_FILE_EXTENSION);
         try {
-            Files.createFile(accountFile);
+            Files.writeString(accountFile, "", StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
             for (Account currentAccount : accounts)
                 Files.writeString(accountFile, currentAccount.toString() + "\r\n", StandardOpenOption.APPEND);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-
+        /*
         System.out.println("Чтение из файла");
         StringBuilder readAccountFile = new StringBuilder();
         try {
@@ -76,13 +81,20 @@ public class CourseProjectJavaCore {
         System.out.println("Вывод прочитанных счетов");
         for (Account currentAccount : newAccounts) System.out.println(currentAccount);
         System.out.println();
-
-        System.out.println("Создание платежного поручения");
-        PaymentOrder po1 = new PaymentOrder(newAccounts.get(0).getNumber(),
-                newAccounts.get(1).getNumber(), 1000);
-
+        */
+        System.out.println("Создание платежных поручений");
+        ArrayList<PaymentOrder> paymentOrders = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            paymentOrders.add(new PaymentOrder(
+                    /*Счет плательщика*/
+                    accounts.get((int)(Math.random() * (accounts.size() - 1))).getNumber(),
+                    /*Счет получателя*/
+                    accounts.get((int)(Math.random() * (accounts.size() - 1))).getNumber(),
+                    /*Сумма платежа*/
+                    (int)(Math.random() * 2000)));
+        }
         System.out.println("Запись в файл");
-        Path paymentOrderFilePath = Path.of("src\\CourseProjectJavaCore\\dataChannels\\input\\");
+        Path paymentOrderFilePath = Path.of(PaymentOrder.DEFAULT_PATH);
         /*Создание директории*/
         if (Files.notExists(paymentOrderFilePath)) {
             try {
@@ -91,17 +103,22 @@ public class CourseProjectJavaCore {
                 System.out.println(e.getMessage());
             }
         }
-        /*Создание файла*/
-        Path paymentOrderFile = paymentOrderFilePath.resolve("paymentOrder1"
-                + PaymentOrder.PAYMENT_ORDER_FILE_EXTENSION);
-        try {
-            Files.createFile(paymentOrderFile);
-            Files.writeString(paymentOrderFile, po1.toString(), StandardOpenOption.APPEND);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
+        int i = 0;
+        for (PaymentOrder currentPaymentOrder : paymentOrders) {
+            /*Создание файла*/
+            i++;
+            Path paymentOrderFile = paymentOrderFilePath.resolve("paymentOrder" + i
+                    + PaymentOrder.PAYMENT_ORDER_FILE_EXTENSION);
+            try {
+                Files.writeString(paymentOrderFile, "", StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING);
+                Files.writeString(paymentOrderFile, currentPaymentOrder.toString(), StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
         }
-
-        System.out.println("Чтение из файла");
+        /*
+        System.out.println("Чтение из файла");00
         StringBuilder readPaymentOrderFile = new StringBuilder();
         try {
             readPaymentOrderFile.append(Files.readString(paymentOrderFile));
@@ -119,11 +136,11 @@ public class CourseProjectJavaCore {
         }
         System.out.println("Вывод прочитанного платежного поручения");
         if (readPO1 != null) System.out.println(readPO1);
+        */
+        System.out.println("Перемещение платежных поручений");
 
-        System.out.println("Перемещение платежного поручения");
-
-        Path inputPath = Path.of("src\\CourseProjectJavaCore\\dataChannels\\input\\");
-        Path archivePath = Path.of("src\\CourseProjectJavaCore\\dataChannels\\archive\\");
+        Path inputPath = Path.of(PaymentOrder.DEFAULT_PATH);
+        Path archivePath = Path.of(TransactionReport.DEFAULT_PATH);
         /*Создание директории*/
         if (Files.notExists(inputPath)) {
             try {
@@ -139,12 +156,25 @@ public class CourseProjectJavaCore {
                 System.out.println(e.getMessage());
             }
         }
-        Path inputFile = inputPath.resolve(paymentOrderFile.getFileName());
-        Path archiveFile = archivePath.resolve(paymentOrderFile.getFileName());
-        try {
-            Files.move(inputFile, archiveFile, StandardCopyOption.REPLACE_EXISTING);
+        /*Получить список файлов*/
+        ArrayList<Path> paymentOrderFiles = new ArrayList<>();
+        System.out.println("Получение списка платежных поручений");
+        try (Stream<Path> allFiles = Files.list(Path.of(PaymentOrder.DEFAULT_PATH))) {
+            paymentOrderFiles = allFiles.filter(Files :: isRegularFile)
+                    .map(Path :: getFileName)
+                    /*.filter(x -> x.getFileName().endsWith(PaymentOrder.PAYMENT_ORDER_FILE_EXTENSION))*/
+                    .collect(Collectors.toCollection(ArrayList::new));
         } catch (IOException e) {
             System.out.println(e.getMessage());
+        }
+        for (Path currentPaymentOrder : paymentOrderFiles) {
+            Path inputFile = inputPath.resolve(currentPaymentOrder.getFileName());
+            Path archiveFile = archivePath.resolve(currentPaymentOrder.getFileName());
+            try {
+                Files.move(inputFile, archiveFile, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 }

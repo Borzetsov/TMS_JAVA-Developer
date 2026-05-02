@@ -1,8 +1,8 @@
 /**
  * Classname    PaymentOrder
- * @version     0.02
+ * @version     0.03
  * @author      Aleksei Borzetsov
- * date         28.04.2026
+ * date         02.05.2026
  */
 
 package CourseProjectJavaCore.model;
@@ -13,6 +13,7 @@ import java.time.ZonedDateTime;
  * Класс платежного поручения
  */
 public class PaymentOrder {
+    public static final String DEFAULT_PATH = "src\\CourseProjectJavaCore\\dataChannels\\input\\";
 
     public static final String PAYMENT_ORDER_REGEXP =
             "^Payer: [0-9]{5}-[0-9]{5} Recipient: [0-9]{5}-[0-9]{5} Value: [0-9]+\\b";

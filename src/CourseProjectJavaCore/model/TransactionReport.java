@@ -1,8 +1,8 @@
 /**
  * Classname    TransactionReport
- * @version     0.01
+ * @version     0.02
  * @author      Aleksei Borzetsov
- * date         28.04.2026
+ * date         02.05.2026
  */
 
 package CourseProjectJavaCore.model;
@@ -13,7 +13,7 @@ import java.time.ZonedDateTime;
  * Класс отчета по транзакции
  */
 public class TransactionReport {
-
+    public static final String DEFAULT_PATH = "src\\CourseProjectJavaCore\\dataChannels\\archive\\";
     public static final String TRANSACTION_REPORT_FILE_EXTENSION = ".txt";
 
     private final ZonedDateTime reportTime;

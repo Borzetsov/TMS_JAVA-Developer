@@ -11,13 +11,6 @@ import java.util.ArrayList;
 
 public class TransactionProcessor {
 
-    private static final String ACCOUNTS_DEFAULT_PATH =
-            "src\\CourseProjectJavaCore\\dataChannels\\";
-    private static final String INPUT_DEFAULT_PATH =
-            "src\\CourseProjectJavaCore\\dataChannels\\input\\";
-    private static final String ARCHIVE_DEFAULT_PATH =
-            "src\\CourseProjectJavaCore\\dataChannels\\archive\\";
-
     private ArrayList<TransactionReport> report = new ArrayList<>();
 
     public TransactionProcessor() {
