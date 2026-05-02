@@ -1,8 +1,8 @@
 /**
  * Classname    TransactionProcessor
- * @version     0.01
+ * @version     0.02
  * @author      Aleksei Borzetsov
- * date         28.04.2026
+ * date         02.05.2026
  */
 
 package CourseProjectJavaCore.model;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class TransactionProcessor {
 
     private static final String ACCOUNTS_DEFAULT_PATH =
-            "src\\CourseProjectJavaCore\\dataChannels\\input\\";
+            "src\\CourseProjectJavaCore\\dataChannels\\";
     private static final String INPUT_DEFAULT_PATH =
             "src\\CourseProjectJavaCore\\dataChannels\\input\\";
     private static final String ARCHIVE_DEFAULT_PATH =
