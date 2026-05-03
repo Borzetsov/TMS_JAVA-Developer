@@ -1,26 +1,23 @@
 /**
  * Classname    CourceProjectJavaCore
- * @version     0.03
+ * @version     0.04
  * @author      Aleksei Borzetsov
- * date         02.05.2026
+ * date         03.05.2026
  */
  
 package CourseProjectJavaCore;
 
 import CourseProjectJavaCore.model.Account;
 import CourseProjectJavaCore.model.PaymentOrder;
-import CourseProjectJavaCore.model.TransactionReport;
+import CourseProjectJavaCore.model.TransactionProcessor;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class CourseProjectJavaCore {
+public final class CourseProjectJavaCore {
 
     public void run() {
         System.out.println("Курсовой проект №1 Java Core");
@@ -43,7 +40,7 @@ public class CourseProjectJavaCore {
 
         System.out.println("Запись в файл");
         Path accountFilePath = Path.of(Account.DEFAULT_PATH);
-        /*Создание директории*/
+        //Создание директории
         if (Files.notExists(accountFilePath)) {
             try {
                 Files.createDirectories(accountFilePath);
@@ -51,8 +48,8 @@ public class CourseProjectJavaCore {
                 System.out.println(e.getMessage());
             }
         }
-        /*Создание файла*/
-        Path accountFile = accountFilePath.resolve("accounts" + Account.ACCOUNT_DATABASE_FILE_EXTENSION);
+        //Создание файла
+        Path accountFile = accountFilePath.resolve(Account.FILE_NAME + Account.DATABASE_FILE_EXTENSION);
         try {
             Files.writeString(accountFile, "", StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING);
@@ -108,7 +105,7 @@ public class CourseProjectJavaCore {
             /*Создание файла*/
             i++;
             Path paymentOrderFile = paymentOrderFilePath.resolve("paymentOrder" + i
-                    + PaymentOrder.PAYMENT_ORDER_FILE_EXTENSION);
+                    + PaymentOrder.FILE_EXTENSION);
             try {
                 Files.writeString(paymentOrderFile, "", StandardOpenOption.CREATE,
                         StandardOpenOption.TRUNCATE_EXISTING);
@@ -117,8 +114,11 @@ public class CourseProjectJavaCore {
                 System.out.println(e.getMessage());
             }
         }
+        //Создание обработчика транзакций
+        TransactionProcessor transactionProcessor = TransactionProcessor.getINSTANCE();
+        transactionProcessor.executePaymentOrders();
         /*
-        System.out.println("Чтение из файла");00
+        System.out.println("Чтение из файла");
         StringBuilder readPaymentOrderFile = new StringBuilder();
         try {
             readPaymentOrderFile.append(Files.readString(paymentOrderFile));
@@ -137,11 +137,12 @@ public class CourseProjectJavaCore {
         System.out.println("Вывод прочитанного платежного поручения");
         if (readPO1 != null) System.out.println(readPO1);
         */
+        /*
         System.out.println("Перемещение платежных поручений");
 
         Path inputPath = Path.of(PaymentOrder.DEFAULT_PATH);
         Path archivePath = Path.of(TransactionReport.DEFAULT_PATH);
-        /*Создание директории*/
+        //Создание директории
         if (Files.notExists(inputPath)) {
             try {
                 Files.createDirectories(inputPath);
@@ -156,13 +157,13 @@ public class CourseProjectJavaCore {
                 System.out.println(e.getMessage());
             }
         }
-        /*Получить список файлов*/
+        //Получить список файлов
         ArrayList<Path> paymentOrderFiles = new ArrayList<>();
         System.out.println("Получение списка платежных поручений");
         try (Stream<Path> allFiles = Files.list(Path.of(PaymentOrder.DEFAULT_PATH))) {
             paymentOrderFiles = allFiles.filter(Files :: isRegularFile)
                     .map(Path :: getFileName)
-                    /*.filter(x -> x.getFileName().endsWith(PaymentOrder.PAYMENT_ORDER_FILE_EXTENSION))*/
+                    //.filter(x -> x.getFileName().endsWith(PaymentOrder.PAYMENT_ORDER_FILE_EXTENSION))
                     .collect(Collectors.toCollection(ArrayList::new));
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -175,6 +176,6 @@ public class CourseProjectJavaCore {
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
-        }
+        }*/
     }
 }

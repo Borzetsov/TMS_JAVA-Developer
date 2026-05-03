@@ -1,8 +1,8 @@
 /**
  * Classname    PaymentOrder
- * @version     0.03
+ * @version     0.04
  * @author      Aleksei Borzetsov
- * date         02.05.2026
+ * date         03.05.2026
  */
 
 package CourseProjectJavaCore.model;
@@ -12,13 +12,13 @@ import java.time.ZonedDateTime;
 /**
  * Класс платежного поручения
  */
-public class PaymentOrder {
+public final class PaymentOrder {
     public static final String DEFAULT_PATH = "src\\CourseProjectJavaCore\\dataChannels\\input\\";
 
-    public static final String PAYMENT_ORDER_REGEXP =
+    public static final String REGEXP =
             "^Payer: [0-9]{5}-[0-9]{5} Recipient: [0-9]{5}-[0-9]{5} Value: [0-9]+\\b";
 
-    public static final String PAYMENT_ORDER_FILE_EXTENSION = ".txt";
+    public static final String FILE_EXTENSION = ".txt";
 
     private long number;
     private final String payerAccountNumber;
@@ -40,6 +40,18 @@ public class PaymentOrder {
         this.payerAccountNumber = splitRecord[1];
         this.recipientAccountNumber = splitRecord[3];
         this.paymentValue = Long.parseLong(splitRecord[5]);
+    }
+
+    public String getPayerAccountNumber() {
+        return this.payerAccountNumber;
+    }
+
+    public String getRecipientAccountNumber() {
+        return this.recipientAccountNumber;
+    }
+
+    public long getPaymentValue() {
+        return this.paymentValue;
     }
 
     public PaymentOrderProcessStatus process() {
