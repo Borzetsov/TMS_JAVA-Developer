@@ -31,7 +31,7 @@ public final class CourseProjectJavaCore {
         }
         //Пополнение баланса
         for (Account currentAccount : accounts) {
-            currentAccount.income((long) (Math.random() * 10000L));
+            currentAccount.income((long) (Math.random() * 2000L));
         }
         //Запись в файл
         Path accountFilePath = Path.of(Account.DEFAULT_PATH);
@@ -45,14 +45,14 @@ public final class CourseProjectJavaCore {
         }
         //Создание файла
         Path accountFile = accountFilePath.resolve(Account.FILE_NAME + Account.FILE_EXTENSION);
-        /*try {
+        try {
             Files.writeString(accountFile, "", StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING);
             for (Account currentAccount : accounts)
                 Files.writeString(accountFile, currentAccount.toString() + "\r\n", StandardOpenOption.APPEND);
         } catch (IOException e) {
             System.out.println(e.getMessage());
-        }*/
+        }
         //Создание платежных поручений
         ArrayList<PaymentOrder> paymentOrders = new ArrayList<>();
         paymentOrders.add(new PaymentOrder(
@@ -112,7 +112,7 @@ public final class CourseProjectJavaCore {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        //Создание обработчика транзакций
+        //Обработчик транзакций
         TransactionProcessor transactionProcessor = TransactionProcessor.getINSTANCE();
         //Организация пользовательского интерфейса
         Scanner consoleScanner = new Scanner(System.in);
