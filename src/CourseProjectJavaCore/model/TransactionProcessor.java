@@ -1,14 +1,15 @@
 /**
  * Classname    TransactionProcessor
- * @version     0.03
+ * @version     0.04
  * @author      Aleksei Borzetsov
- * date         03.05.2026
+ * date         04.05.2026
  */
 
 package CourseProjectJavaCore.model;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -19,11 +20,22 @@ import java.util.stream.Stream;
 public final class TransactionProcessor {
 
     private ArrayList<TransactionReport> report = new ArrayList<>();
+    private boolean canWork = true;
 
     public static TransactionProcessor INSTANCE = new TransactionProcessor();
 
     private TransactionProcessor() {
-
+        //Проверка существования базы данных
+        Path accountFilePath = Path.of(Account.DEFAULT_PATH);
+        Path accountFile = accountFilePath.resolve(Account.FILE_NAME + Account.FILE_EXTENSION);
+        if (!Files.exists(accountFile)) {
+            report.add(new TransactionReport(
+                    ZonedDateTime.now(ZoneId.of("UTC")),
+                "",
+                "Accounts database not found",
+                ""));
+            canWork = false;
+        }
     }
 
     public static TransactionProcessor getINSTANCE() {
@@ -31,6 +43,10 @@ public final class TransactionProcessor {
     }
 
     public void executePaymentOrders() {
+        if (!canWork) {
+            System.out.println("Critical error: accounts database not found");
+            return;
+        }
         //Получить список платежных поручений
         ArrayList<Path> paymentOrderFiles = new ArrayList<>();
         try (Stream<Path> allFiles = Files.list(Path.of(PaymentOrder.DEFAULT_PATH))) {
@@ -46,6 +62,8 @@ public final class TransactionProcessor {
         }
         for (Path currentPaymentOrderFile : paymentOrderFiles) {
             //Прочитать платежное поручение
+            ZonedDateTime timeOfTransaction = ZonedDateTime.now(ZoneId.of("UTC"));
+            String transactionStatus = new String("Executed");
             StringBuilder readPaymentOrderFile = new StringBuilder();
             try {
                 readPaymentOrderFile.append(Files.readString(currentPaymentOrderFile));
@@ -63,9 +81,26 @@ public final class TransactionProcessor {
                 Account recipientAccount = getAccount(currentPaymentOrder.getRecipientAccountNumber());
                 //Получить сумму перевода
                 long paymentValue = currentPaymentOrder.getPaymentValue();
-                //Проверить возможность транзакции: счета есть, у плательщика достаточно средств
+                //Проверить возможность транзакции:
+                //Есть ли счет плательщика?
+                if (payerAccount == null) {
+                    transactionStatus = new String("Denied <The payer's account not found>");
+                }
+                //Есть ли счет получателя?
+                if (recipientAccount == null) {
+                    transactionStatus = new String("Denied <The recipient's account not found>");
+                }
+                //У плательщика достаточно средств?
+                if ((payerAccount != null) && (!payerAccount.isExpensePossible(paymentValue))) {
+                    transactionStatus = new String("Denied <Insufficient funds in the payer's account>");
+                }
+                //Проверить, что счета разные
+                if ((payerAccount != null) && (recipientAccount != null) &&
+                        (payerAccount.getNumber().equals(recipientAccount.getNumber()))) {
+                    transactionStatus = new String("Denied <Same account>");
+                }
                 if ((payerAccount != null) && (recipientAccount != null)
-                        && (payerAccount.isExpensePossible(paymentValue))) {
+                        && (transactionStatus.equals("Executed"))){
                     //Списать со счета плательщика
                     payerAccount.expense(paymentValue);
                     //Зачислить на счет получателя
@@ -73,52 +108,82 @@ public final class TransactionProcessor {
                     //Обновить записи в базе данных
                     updateAccount(payerAccount);
                     updateAccount(recipientAccount);
-                    //Создать отчет о транзакции
-                    report.add(new TransactionReport(currentPaymentOrderFile.getFileName().toString(),
-                            payerAccount.getNumber() + " -> "
-                                    + recipientAccount.getNumber() + " : " + paymentValue,
-                            "Executed"));
-                    //Поставить в платежном поручении отметку банка
+                }
+                //Создать отчет о транзакции
+                report.add(new TransactionReport(
+                        timeOfTransaction,
+                        currentPaymentOrderFile.getFileName().toString(),
+                        currentPaymentOrder.getPayerAccountNumber() + " -> "
+                                + currentPaymentOrder.getRecipientAccountNumber()
+                                + " : " + paymentValue,
+                        transactionStatus));
+                //Поставить в платежном поручении отметку банка
+                try {
+                    Files.write(currentPaymentOrderFile,
+                            ("\r\n\r\n" + transactionStatus + "\r\n" + timeOfTransaction).getBytes(),
+                            StandardOpenOption.APPEND);
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                }
+                //Переместить платежное поручение в архив
+                Path inputPath = Path.of(PaymentOrder.DEFAULT_PATH);
+                Path archivePath = Path.of(PaymentOrder.ARCHIVE_PATH);
+                //Создание директории
+                if (Files.notExists(inputPath)) {
                     try {
-                        Files.write(currentPaymentOrderFile,
-                                ("\r\n\r\nExecuted " + ZonedDateTime.now() + " ").getBytes(),
-                                StandardOpenOption.APPEND);
-                    } catch (IOException e) {
-                        System.out.println(e.getMessage());
-                    }
-                    //Переместить платежное поручение в архив
-                    Path inputPath = Path.of(PaymentOrder.DEFAULT_PATH);
-                    Path archivePath = Path.of(TransactionReport.DEFAULT_PATH);
-                    //Создание директории
-                    if (Files.notExists(inputPath)) {
-                        try {
-                            Files.createDirectories(inputPath);
-                        } catch (IOException e) {
-                            System.out.println(e.getMessage());
-                        }
-                    }
-                    if (Files.notExists(archivePath)) {
-                        try {
-                            Files.createDirectories(archivePath);
-                        } catch (IOException e) {
-                            System.out.println(e.getMessage());
-                        }
-                    }
-                    Path inputFile = inputPath.resolve(currentPaymentOrderFile.getFileName());
-                    Path archiveFile = archivePath.resolve(currentPaymentOrderFile.getFileName());
-                    try {
-                        Files.move(inputFile, archiveFile, StandardCopyOption.REPLACE_EXISTING);
+                        Files.createDirectories(inputPath);
                     } catch (IOException e) {
                         System.out.println(e.getMessage());
                     }
                 }
+                if (Files.notExists(archivePath)) {
+                    try {
+                        Files.createDirectories(archivePath);
+                    } catch (IOException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+                Path inputFile = inputPath.resolve(currentPaymentOrderFile.getFileName());
+                Path archiveFile = archivePath.resolve(currentPaymentOrderFile.getFileName());
+                try {
+                    Files.move(inputFile, archiveFile, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                }
             }
         }
-        generateReport();
     }
 
+    /**
+     * Создает файл отчета по стандартному пути
+     */
     public void generateReport() {
-        for (TransactionReport currentTransactionReport : report) System.out.println(currentTransactionReport);
+        Path reportFilePath = Path.of(TransactionReport.DEFAULT_PATH);
+        //Создание директории
+        if (Files.notExists(reportFilePath)) {
+            try {
+                Files.createDirectories(reportFilePath);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        //Создание файла
+        Path reportFile = reportFilePath.resolve(TransactionReport.FILE_NAME
+                + TransactionReport.FILE_EXTENSION);
+        try {
+            Files.writeString(reportFile, "", StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+            if (report.isEmpty()) {
+                Files.writeString(reportFile, "No payment orders executed", StandardOpenOption.APPEND);
+            }
+            else {
+                for (TransactionReport currentTransactionReport : report)
+                    Files.writeString(reportFile, currentTransactionReport
+                            + "\r\n", StandardOpenOption.APPEND);
+            }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
@@ -129,7 +194,7 @@ public final class TransactionProcessor {
     private Account getAccount(String accountNumber) {
         //Прочитать базу данных
         Path accountFilePath = Path.of(Account.DEFAULT_PATH);
-        Path accountFile = accountFilePath.resolve(Account.FILE_NAME + Account.DATABASE_FILE_EXTENSION);
+        Path accountFile = accountFilePath.resolve(Account.FILE_NAME + Account.FILE_EXTENSION);
         StringBuilder readAccountFile = new StringBuilder();
         try {
             readAccountFile.append(Files.readString(accountFile));
@@ -152,8 +217,45 @@ public final class TransactionProcessor {
         return null;
     }
 
+    /**
+     * Обновить информацию о счете в базе данных
+     * @param account -- объект с новыми данными
+     * @return -- статус
+     */
     private boolean updateAccount(Account account) {
-        //Обновить запись в базе данных
+        //Прочитать базу данных
+        Path accountFilePath = Path.of(Account.DEFAULT_PATH);
+        Path accountFile = accountFilePath.resolve(Account.FILE_NAME + Account.FILE_EXTENSION);
+        StringBuilder readAccountFile = new StringBuilder();
+        try {
+            readAccountFile.append(Files.readString(accountFile));
+            //Получить список счетов
+            ArrayList<Account> accounts = new ArrayList<>();
+            Pattern accountPattern = Pattern.compile(Account.REGEXP);
+            Matcher accountMatcher = accountPattern.matcher(readAccountFile);
+            while (accountMatcher.find()) {
+                accounts.add(new Account(accountMatcher.group()));
+            }
+            //Есть ли такой счет?
+            ArrayList<Account> reqAccount = accounts.stream()
+                    .filter(str -> str.getNumber().equals(account.getNumber()))
+                    .collect(Collectors.toCollection(ArrayList<Account> :: new));
+            //Если нет -- какая-то непонятная ситуация О_о
+            if (reqAccount.isEmpty()) return false;
+            //Обновить счет
+            accounts.replaceAll(a -> a.getNumber().equals(account.getNumber()) ? account : a);
+            //Обновить базу данных
+            try {
+                Files.writeString(accountFile, "", StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING);
+                for (Account currentAccount : accounts)
+                    Files.writeString(accountFile, currentAccount.toString() + "\r\n", StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
         return true;
     }
 }

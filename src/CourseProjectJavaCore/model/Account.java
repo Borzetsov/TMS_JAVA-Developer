@@ -1,8 +1,8 @@
 /**
  * Classname    Account
- * @version     0.04
+ * @version     0.05
  * @author      Aleksei Borzetsov
- * date         03.05.2026
+ * date         04.05.2026
  */
 
 package CourseProjectJavaCore.model;
@@ -16,8 +16,9 @@ public final class Account {
     private static final long DEFAULT_INITIAL_BALANCE = 0L;
 
     public static final String REGEXP = "Account: [0-9]{5}-[0-9]{5} Balance: [0-9]+\\b";
+
     public static final String FILE_NAME = "accounts";
-    public static final String DATABASE_FILE_EXTENSION = ".txt";
+    public static final String FILE_EXTENSION = ".txt";
 
     private final String number;
     private long balance;

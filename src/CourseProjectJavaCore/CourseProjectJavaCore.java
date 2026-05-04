@@ -1,8 +1,8 @@
 /**
  * Classname    CourceProjectJavaCore
- * @version     0.04
+ * @version     0.05
  * @author      Aleksei Borzetsov
- * date         03.05.2026
+ * date         04.05.2026
  */
  
 package CourseProjectJavaCore;
@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public final class CourseProjectJavaCore {
 
@@ -23,22 +24,16 @@ public final class CourseProjectJavaCore {
         System.out.println("Курсовой проект №1 Java Core");
         System.out.println();
 
-        System.out.println("Создание списка счетов");
+        //Создание списка счетов
         ArrayList<Account> accounts = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             accounts.add(new Account());
         }
-        for (Account currentAccount : accounts) System.out.println(currentAccount);
-        System.out.println();
-
-        System.out.println("Пополнение баланса");
+        //Пополнение баланса
         for (Account currentAccount : accounts) {
-            currentAccount.income((long) (Math.random() * 1000000L));
+            currentAccount.income((long) (Math.random() * 10000L));
         }
-        for (Account currentAccount : accounts) System.out.println(currentAccount);
-        System.out.println();
-
-        System.out.println("Запись в файл");
+        //Запись в файл
         Path accountFilePath = Path.of(Account.DEFAULT_PATH);
         //Создание директории
         if (Files.notExists(accountFilePath)) {
@@ -49,39 +44,25 @@ public final class CourseProjectJavaCore {
             }
         }
         //Создание файла
-        Path accountFile = accountFilePath.resolve(Account.FILE_NAME + Account.DATABASE_FILE_EXTENSION);
-        try {
+        Path accountFile = accountFilePath.resolve(Account.FILE_NAME + Account.FILE_EXTENSION);
+        /*try {
             Files.writeString(accountFile, "", StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING);
             for (Account currentAccount : accounts)
                 Files.writeString(accountFile, currentAccount.toString() + "\r\n", StandardOpenOption.APPEND);
         } catch (IOException e) {
             System.out.println(e.getMessage());
-        }
-        /*
-        System.out.println("Чтение из файла");
-        StringBuilder readAccountFile = new StringBuilder();
-        try {
-            readAccountFile.append(Files.readString(accountFile));
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-        System.out.println(readAccountFile);
-
-        System.out.println("Проверка регулярного выражения");
-        ArrayList<Account> newAccounts = new ArrayList<>();
-        Pattern accountPattern = Pattern.compile(Account.ACCOUNT_REGEXP);
-        Matcher accountMatcher = accountPattern.matcher(readAccountFile);
-        while (accountMatcher.find()) {
-            newAccounts.add(new Account(accountMatcher.group()));
-        }
-        System.out.println("Вывод прочитанных счетов");
-        for (Account currentAccount : newAccounts) System.out.println(currentAccount);
-        System.out.println();
-        */
-        System.out.println("Создание платежных поручений");
+        }*/
+        //Создание платежных поручений
         ArrayList<PaymentOrder> paymentOrders = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        paymentOrders.add(new PaymentOrder(
+                /*Счет плательщика*/
+                accounts.get((int)(Math.random() * (accounts.size() - 1))).getNumber(),
+                /*Счет получателя*/
+                "99999-99999",
+                /*Сумма платежа*/
+                (int)(Math.random() * 2000)));
+        for (int i = 1; i < 9; i++) {
             paymentOrders.add(new PaymentOrder(
                     /*Счет плательщика*/
                     accounts.get((int)(Math.random() * (accounts.size() - 1))).getNumber(),
@@ -90,7 +71,14 @@ public final class CourseProjectJavaCore {
                     /*Сумма платежа*/
                     (int)(Math.random() * 2000)));
         }
-        System.out.println("Запись в файл");
+        paymentOrders.add(new PaymentOrder(
+                /*Счет плательщика*/
+                "00000-00000",
+                /*Счет получателя*/
+                accounts.get((int)(Math.random() * (accounts.size() - 1))).getNumber(),
+                /*Сумма платежа*/
+                (int)(Math.random() * 2000)));
+        //Запись в файл
         Path paymentOrderFilePath = Path.of(PaymentOrder.DEFAULT_PATH);
         /*Создание директории*/
         if (Files.notExists(paymentOrderFilePath)) {
@@ -102,7 +90,7 @@ public final class CourseProjectJavaCore {
         }
         int i = 0;
         for (PaymentOrder currentPaymentOrder : paymentOrders) {
-            /*Создание файла*/
+            //Создание файла
             i++;
             Path paymentOrderFile = paymentOrderFilePath.resolve("paymentOrder" + i
                     + PaymentOrder.FILE_EXTENSION);
@@ -114,68 +102,41 @@ public final class CourseProjectJavaCore {
                 System.out.println(e.getMessage());
             }
         }
+        i++;
+        Path paymentOrderFile = paymentOrderFilePath.resolve("someFile" + i
+                + ".csv");
+        try {
+            Files.writeString(paymentOrderFile, "", StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+            Files.writeString(paymentOrderFile, "Some Content", StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
         //Создание обработчика транзакций
         TransactionProcessor transactionProcessor = TransactionProcessor.getINSTANCE();
-        transactionProcessor.executePaymentOrders();
-        /*
-        System.out.println("Чтение из файла");
-        StringBuilder readPaymentOrderFile = new StringBuilder();
-        try {
-            readPaymentOrderFile.append(Files.readString(paymentOrderFile));
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-        System.out.println(readPaymentOrderFile);
-
-        System.out.println("Проверка регулярного выражения");
-        Pattern paymentOrderPattern = Pattern.compile(PaymentOrder.PAYMENT_ORDER_REGEXP);
-        Matcher paymentOrderMatcher = paymentOrderPattern.matcher(readPaymentOrderFile);
-        PaymentOrder readPO1 = null;
-        if (paymentOrderMatcher.find()) {
-            readPO1 = new PaymentOrder(paymentOrderMatcher.group());
-        }
-        System.out.println("Вывод прочитанного платежного поручения");
-        if (readPO1 != null) System.out.println(readPO1);
-        */
-        /*
-        System.out.println("Перемещение платежных поручений");
-
-        Path inputPath = Path.of(PaymentOrder.DEFAULT_PATH);
-        Path archivePath = Path.of(TransactionReport.DEFAULT_PATH);
-        //Создание директории
-        if (Files.notExists(inputPath)) {
-            try {
-                Files.createDirectories(inputPath);
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
+        //Организация пользовательского интерфейса
+        Scanner consoleScanner = new Scanner(System.in);
+        System.out.println("Для вызова операции парсинга файлов введите 1");
+        System.out.println("Для вызова операции вывода списка всех переводов из файла-отчета введите 2");
+        System.out.println("Для выхода введите 0");
+        int userValue = -1;
+        do {
+            if (consoleScanner.hasNextLine()) {
+                if (consoleScanner.hasNextInt()) {
+                    userValue = consoleScanner.nextInt();
+                    consoleScanner.nextLine();
+                    if (userValue == 1) {
+                        System.out.println("Выполняется операции парсинга файлов");
+                        transactionProcessor.executePaymentOrders();
+                        System.out.println("Готово");
+                    } else if (userValue == 2) {
+                        System.out.println("Выполняется вывод списка всех переводов из файла-отчета");
+                        transactionProcessor.generateReport();
+                        System.out.println("Готово");
+                    }
+                }
             }
-        }
-        if (Files.notExists(archivePath)) {
-            try {
-                Files.createDirectories(archivePath);
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-        //Получить список файлов
-        ArrayList<Path> paymentOrderFiles = new ArrayList<>();
-        System.out.println("Получение списка платежных поручений");
-        try (Stream<Path> allFiles = Files.list(Path.of(PaymentOrder.DEFAULT_PATH))) {
-            paymentOrderFiles = allFiles.filter(Files :: isRegularFile)
-                    .map(Path :: getFileName)
-                    //.filter(x -> x.getFileName().endsWith(PaymentOrder.PAYMENT_ORDER_FILE_EXTENSION))
-                    .collect(Collectors.toCollection(ArrayList::new));
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-        for (Path currentPaymentOrder : paymentOrderFiles) {
-            Path inputFile = inputPath.resolve(currentPaymentOrder.getFileName());
-            Path archiveFile = archivePath.resolve(currentPaymentOrder.getFileName());
-            try {
-                Files.move(inputFile, archiveFile, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            }
-        }*/
+        } while (userValue != 0);
+        System.out.println("Завершение работы");
     }
 }
