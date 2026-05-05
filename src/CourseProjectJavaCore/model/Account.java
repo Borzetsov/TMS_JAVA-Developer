@@ -1,11 +1,18 @@
 /**
  * Classname    Account
- * @version     0.05
+ * @version     0.06
  * @author      Aleksei Borzetsov
- * date         04.05.2026
+ * date         05.05.2026
  */
 
 package CourseProjectJavaCore.model;
+
+import CourseProjectJavaCore.exceptions.IllegalValueException;
+import CourseProjectJavaCore.exceptions.InsufficientFundsException;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Класс счета
@@ -52,33 +59,23 @@ public final class Account {
     /**
      * Пополнить баланс
      * @param value -- величина пополнения
-     * @return -- статус операции
+     * @throws IllegalValueException -- неверная сумма
      */
-    public BalanceChangeStatus income(long value) {
-        if (value <= 0) return BalanceChangeStatus.BALANCE_CHANGE_STATUS_ILLEGAL_VALUE;
+    public void income(long value) throws IllegalValueException {
+        if (value <= 0) throw new IllegalValueException("Illegal value");
         balance += value;
-        return BalanceChangeStatus.BALANCE_CHANGE_STATUS_OK;
     }
 
     /**
      * Уменьшить баланс
      * @param value -- величина списания
-     * @return -- статус операции
+     * @throws InsufficientFundsException -- нехватка средств
+     * @throws IllegalValueException -- неверная сумма
      */
-    public BalanceChangeStatus expense(long value) {
-        if (value <= 0) return BalanceChangeStatus.BALANCE_CHANGE_STATUS_ILLEGAL_VALUE;
-        if ((this.balance - value) < 0) return BalanceChangeStatus.BALANCE_CHANGE_STATUS_INSUFFICIENT_FUNDS;
+    public void expense(long value) throws InsufficientFundsException, IllegalValueException {
+        if (value <= 0) throw new IllegalValueException("Illegal value");
+        if ((this.balance - value) < 0) throw new InsufficientFundsException("Insufficient funds");
         this.balance -= value;
-        return BalanceChangeStatus.BALANCE_CHANGE_STATUS_OK;
-    }
-
-    /**
-     * Возможно ли списание со счета
-     * @param value -- запрашиваемая сумма
-     * @return -- статус
-     */
-    public boolean isExpensePossible(long value) {
-        return this.balance >= value;
     }
 
     public String getNumber() {
@@ -88,5 +85,10 @@ public final class Account {
     @Override
     public String toString() {
         return "Account: " + this.number + " Balance: " + this.balance;
+    }
+
+    public static boolean dataBaseConnect(Path path) throws IOException {
+        if (!Files.exists(path)) throw new IOException("Accounts data base not found");
+        return true;
     }
 }

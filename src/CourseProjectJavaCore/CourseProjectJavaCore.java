@@ -1,12 +1,13 @@
 /**
  * Classname    CourceProjectJavaCore
- * @version     0.05
+ * @version     0.06
  * @author      Aleksei Borzetsov
- * date         04.05.2026
+ * date         05.05.2026
  */
  
 package CourseProjectJavaCore;
 
+import CourseProjectJavaCore.exceptions.IllegalValueException;
 import CourseProjectJavaCore.model.Account;
 import CourseProjectJavaCore.model.PaymentOrder;
 import CourseProjectJavaCore.model.TransactionProcessor;
@@ -31,7 +32,11 @@ public final class CourseProjectJavaCore {
         }
         //Пополнение баланса
         for (Account currentAccount : accounts) {
-            currentAccount.income((long) (Math.random() * 2000L));
+            try {
+                currentAccount.income((long) (Math.random() * 2000L));
+            } catch (IllegalValueException e) {
+
+            }
         }
         //Запись в файл
         Path accountFilePath = Path.of(Account.DEFAULT_PATH);

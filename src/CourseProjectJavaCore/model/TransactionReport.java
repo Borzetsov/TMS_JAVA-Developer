@@ -1,13 +1,12 @@
 /**
  * Classname    TransactionReport
- * @version     0.04
+ * @version     0.05
  * @author      Aleksei Borzetsov
- * date         04.05.2026
+ * date         05.05.2026
  */
 
 package CourseProjectJavaCore.model;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 /**

@@ -1,11 +1,15 @@
 /**
  * Classname    TransactionProcessor
- * @version     0.04
+ * @version     0.05
  * @author      Aleksei Borzetsov
- * date         04.05.2026
+ * date         05.05.2026
  */
 
 package CourseProjectJavaCore.model;
+
+import CourseProjectJavaCore.exceptions.AccountNotFoundException;
+import CourseProjectJavaCore.exceptions.IllegalValueException;
+import CourseProjectJavaCore.exceptions.InsufficientFundsException;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -28,13 +32,15 @@ public final class TransactionProcessor {
         //Проверка существования базы данных
         Path accountFilePath = Path.of(Account.DEFAULT_PATH);
         Path accountFile = accountFilePath.resolve(Account.FILE_NAME + Account.FILE_EXTENSION);
-        if (!Files.exists(accountFile)) {
+        try {
+            Account.dataBaseConnect(accountFile);
+        } catch (IOException e) {
             report.add(new TransactionReport(
                     ZonedDateTime.now(ZoneId.of("UTC")),
-                "",
-                "Accounts database not found",
-                ""));
-            canWork = false;
+                    "",
+                    e.getMessage(),
+                    ""));
+            e.printStackTrace();
         }
     }
 
@@ -63,7 +69,7 @@ public final class TransactionProcessor {
         for (Path currentPaymentOrderFile : paymentOrderFiles) {
             //Прочитать платежное поручение
             ZonedDateTime timeOfTransaction = ZonedDateTime.now(ZoneId.of("UTC"));
-            String transactionStatus = new String("Executed");
+            //Implement Record for TransactionReport
             StringBuilder readPaymentOrderFile = new StringBuilder();
             try {
                 readPaymentOrderFile.append(Files.readString(currentPaymentOrderFile));
@@ -76,31 +82,12 @@ public final class TransactionProcessor {
             PaymentOrder currentPaymentOrder;
             if (paymentOrderMatcher.find()) {
                 currentPaymentOrder = new PaymentOrder(paymentOrderMatcher.group());
-                //Получить счета плательщика и получателя
-                Account payerAccount = getAccount(currentPaymentOrder.getPayerAccountNumber());
-                Account recipientAccount = getAccount(currentPaymentOrder.getRecipientAccountNumber());
-                //Получить сумму перевода
-                long paymentValue = currentPaymentOrder.getPaymentValue();
-                //Проверить возможность транзакции:
-                //Есть ли счет плательщика?
-                if (payerAccount == null) {
-                    transactionStatus = new String("Denied <The payer's account not found>");
-                }
-                //Есть ли счет получателя?
-                if (recipientAccount == null) {
-                    transactionStatus = new String("Denied <The recipient's account not found>");
-                }
-                //У плательщика достаточно средств?
-                if ((payerAccount != null) && (!payerAccount.isExpensePossible(paymentValue))) {
-                    transactionStatus = new String("Denied <Insufficient funds in the payer's account>");
-                }
-                //Проверить, что счета разные
-                if ((payerAccount != null) && (recipientAccount != null) &&
-                        (payerAccount.getNumber().equals(recipientAccount.getNumber()))) {
-                    transactionStatus = new String("Denied <Same account>");
-                }
-                if ((payerAccount != null) && (recipientAccount != null)
-                        && (transactionStatus.equals("Executed"))){
+                try {
+                    //Получить счета плательщика и получателя
+                    Account payerAccount = getAccount(currentPaymentOrder.getPayerAccountNumber());
+                    Account recipientAccount = getAccount(currentPaymentOrder.getRecipientAccountNumber());
+                    //Получить сумму перевода
+                    long paymentValue = currentPaymentOrder.getPaymentValue();
                     //Списать со счета плательщика
                     payerAccount.expense(paymentValue);
                     //Зачислить на счет получателя
@@ -108,9 +95,13 @@ public final class TransactionProcessor {
                     //Обновить записи в базе данных
                     updateAccount(payerAccount);
                     updateAccount(recipientAccount);
+                } catch (AccountNotFoundException
+                        | IllegalValueException
+                        | InsufficientFundsException e) {
+
                 }
                 //Создать отчет о транзакции
-                report.add(new TransactionReport(
+                /*report.add(new TransactionReport(
                         timeOfTransaction,
                         currentPaymentOrderFile.getFileName().toString(),
                         currentPaymentOrder.getPayerAccountNumber() + " -> "
@@ -124,7 +115,7 @@ public final class TransactionProcessor {
                             StandardOpenOption.APPEND);
                 } catch (IOException e) {
                     System.out.println(e.getMessage());
-                }
+                }*/
                 //Переместить платежное поручение в архив
                 Path inputPath = Path.of(PaymentOrder.DEFAULT_PATH);
                 Path archivePath = Path.of(PaymentOrder.ARCHIVE_PATH);
@@ -189,9 +180,10 @@ public final class TransactionProcessor {
     /**
      * Найти счет в базе данных
      * @param accountNumber -- запрашиваемый счет
+     * @throws AccountNotFoundException -- счет не обнаружен
      * @return запрашиваемый счет
      */
-    private Account getAccount(String accountNumber) {
+    private Account getAccount(String accountNumber) throws AccountNotFoundException {
         //Прочитать базу данных
         Path accountFilePath = Path.of(Account.DEFAULT_PATH);
         Path accountFile = accountFilePath.resolve(Account.FILE_NAME + Account.FILE_EXTENSION);
@@ -209,8 +201,9 @@ public final class TransactionProcessor {
             ArrayList<Account> reqAccount = accounts.stream()
                     .filter(str -> str.getNumber().equals(accountNumber))
                     .collect(Collectors.toCollection(ArrayList<Account> :: new));
-            //Вернуть null, если счетов нет, иначе первый счет из списка O_o
-            return (reqAccount.isEmpty()) ? null : reqAccount.get(0);
+            //Если запрашиваемого счета не обнаружено, вызвать исключение
+            if (reqAccount.isEmpty()) throw new AccountNotFoundException("Account not found");
+            return reqAccount.get(0);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -220,9 +213,9 @@ public final class TransactionProcessor {
     /**
      * Обновить информацию о счете в базе данных
      * @param account -- объект с новыми данными
-     * @return -- статус
+     * @throws AccountNotFoundException -- счет не обнаружен
      */
-    private boolean updateAccount(Account account) {
+    private void updateAccount(Account account) throws AccountNotFoundException {
         //Прочитать базу данных
         Path accountFilePath = Path.of(Account.DEFAULT_PATH);
         Path accountFile = accountFilePath.resolve(Account.FILE_NAME + Account.FILE_EXTENSION);
@@ -241,7 +234,7 @@ public final class TransactionProcessor {
                     .filter(str -> str.getNumber().equals(account.getNumber()))
                     .collect(Collectors.toCollection(ArrayList<Account> :: new));
             //Если нет -- какая-то непонятная ситуация О_о
-            if (reqAccount.isEmpty()) return false;
+            if (reqAccount.isEmpty()) throw new AccountNotFoundException("Account not found");
             //Обновить счет
             accounts.replaceAll(a -> a.getNumber().equals(account.getNumber()) ? account : a);
             //Обновить базу данных
@@ -256,6 +249,5 @@ public final class TransactionProcessor {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        return true;
     }
 }
