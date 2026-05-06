@@ -1,15 +1,13 @@
 /**
  * Classname    AccountNotExistException
- * @version     0.01
+ * @version     0.02
  * @author      Aleksei Borzetsov
- * date         05.05.2026
+ * date         06.05.2026
  */
 
 package CourseProjectJavaCore.exceptions;
 
-import java.io.IOException;
-
-public class AccountNotFoundException extends IOException {
+public class AccountNotFoundException extends Exception {
   public AccountNotFoundException(String message) {
     super(message);
   }

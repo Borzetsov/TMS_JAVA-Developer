@@ -7,8 +7,6 @@
 
 package CourseProjectJavaCore.model;
 
-import java.time.ZonedDateTime;
-
 /**
  * Класс платежного поручения
  */
@@ -21,14 +19,9 @@ public final class PaymentOrder {
 
     public static final String FILE_EXTENSION = ".txt";
 
-    private long number;
     private final String payerAccountNumber;
     private final String recipientAccountNumber;
     private final long paymentValue;
-
-    private ZonedDateTime created;
-    private ZonedDateTime processed;
-    private PaymentOrderProcessStatus processStatus;
 
     public PaymentOrder(String payerNumber, String recipientNumber, long value) {
         this.payerAccountNumber = payerNumber;
@@ -53,10 +46,6 @@ public final class PaymentOrder {
 
     public long getPaymentValue() {
         return this.paymentValue;
-    }
-
-    public PaymentOrderProcessStatus process() {
-        return PaymentOrderProcessStatus.PAYMENT_ORDER_PROCESS_STATUS_OK;
     }
 
     @Override

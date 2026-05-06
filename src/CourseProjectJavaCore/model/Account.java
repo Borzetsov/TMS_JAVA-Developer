@@ -1,8 +1,8 @@
 /**
  * Classname    Account
- * @version     0.06
+ * @version     0.07
  * @author      Aleksei Borzetsov
- * date         05.05.2026
+ * date         06.05.2026
  */
 
 package CourseProjectJavaCore.model;
@@ -87,8 +87,7 @@ public final class Account {
         return "Account: " + this.number + " Balance: " + this.balance;
     }
 
-    public static boolean dataBaseConnect(Path path) throws IOException {
+    public static void dataBaseConnect(Path path) throws IOException {
         if (!Files.exists(path)) throw new IOException("Accounts data base not found");
-        return true;
     }
 }

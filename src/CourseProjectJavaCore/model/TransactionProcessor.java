@@ -1,15 +1,13 @@
 /**
  * Classname    TransactionProcessor
- * @version     0.05
+ * @version     0.06
  * @author      Aleksei Borzetsov
- * date         05.05.2026
+ * date         06.05.2026
  */
 
 package CourseProjectJavaCore.model;
 
-import CourseProjectJavaCore.exceptions.AccountNotFoundException;
-import CourseProjectJavaCore.exceptions.IllegalValueException;
-import CourseProjectJavaCore.exceptions.InsufficientFundsException;
+import CourseProjectJavaCore.exceptions.*;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -23,8 +21,9 @@ import java.util.stream.Stream;
 
 public final class TransactionProcessor {
 
-    private ArrayList<TransactionReport> report = new ArrayList<>();
-    private boolean canWork = true;
+    private final ArrayList<TransactionReport> report = new ArrayList<>();
+
+    private Path reportFilePath = Path.of(TransactionReport.DEFAULT_PATH);
 
     public static TransactionProcessor INSTANCE = new TransactionProcessor();
 
@@ -40,7 +39,6 @@ public final class TransactionProcessor {
                     "",
                     e.getMessage(),
                     ""));
-            e.printStackTrace();
         }
     }
 
@@ -48,13 +46,13 @@ public final class TransactionProcessor {
         return INSTANCE;
     }
 
-    public void executePaymentOrders() {
-        if (!canWork) {
-            System.out.println("Critical error: accounts database not found");
-            return;
-        }
+    /**
+     * Выполняет все платежные поручения
+     * @throws FatalErrorException -- ошибка работы программы
+     */
+    public void executePaymentOrders() throws FatalErrorException {
         //Получить список платежных поручений
-        ArrayList<Path> paymentOrderFiles = new ArrayList<>();
+        ArrayList<Path> paymentOrderFiles;
         try (Stream<Path> allFiles = Files.list(Path.of(PaymentOrder.DEFAULT_PATH))) {
             paymentOrderFiles = allFiles
                     //Обычный файл (не ярлык и не папка)
@@ -64,108 +62,125 @@ public final class TransactionProcessor {
                     //Добавить в список
                     .collect(Collectors.toCollection(ArrayList::new));
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            throw new FatalErrorException("чтение платежных поручений");
         }
         for (Path currentPaymentOrderFile : paymentOrderFiles) {
-            //Прочитать платежное поручение
-            ZonedDateTime timeOfTransaction = ZonedDateTime.now(ZoneId.of("UTC"));
-            //Implement Record for TransactionReport
-            StringBuilder readPaymentOrderFile = new StringBuilder();
+            report.add(executePaymentOrder(currentPaymentOrderFile));
             try {
-                readPaymentOrderFile.append(Files.readString(currentPaymentOrderFile));
+                Files.write(currentPaymentOrderFile,
+                        ("\r\n\r\n" + report.get(report.size() - 1).toString()).getBytes(),
+                        StandardOpenOption.APPEND);
             } catch (IOException e) {
-                System.out.println(e.getMessage());
+                throw new FatalErrorException("отметка банка");
             }
-            //Получить объект платежного поручения
-            Pattern paymentOrderPattern = Pattern.compile(PaymentOrder.REGEXP);
-            Matcher paymentOrderMatcher = paymentOrderPattern.matcher(readPaymentOrderFile);
-            PaymentOrder currentPaymentOrder;
-            if (paymentOrderMatcher.find()) {
-                currentPaymentOrder = new PaymentOrder(paymentOrderMatcher.group());
+            //Переместить платежное поручение в архив
+            Path inputPath = Path.of(PaymentOrder.DEFAULT_PATH);
+            Path archivePath = Path.of(PaymentOrder.ARCHIVE_PATH);
+            //Создание директории
+            if (Files.notExists(inputPath)) {
                 try {
-                    //Получить счета плательщика и получателя
-                    Account payerAccount = getAccount(currentPaymentOrder.getPayerAccountNumber());
-                    Account recipientAccount = getAccount(currentPaymentOrder.getRecipientAccountNumber());
-                    //Получить сумму перевода
-                    long paymentValue = currentPaymentOrder.getPaymentValue();
-                    //Списать со счета плательщика
-                    payerAccount.expense(paymentValue);
-                    //Зачислить на счет получателя
-                    recipientAccount.income(paymentValue);
-                    //Обновить записи в базе данных
-                    updateAccount(payerAccount);
-                    updateAccount(recipientAccount);
-                } catch (AccountNotFoundException
-                        | IllegalValueException
-                        | InsufficientFundsException e) {
-
-                }
-                //Создать отчет о транзакции
-                /*report.add(new TransactionReport(
-                        timeOfTransaction,
-                        currentPaymentOrderFile.getFileName().toString(),
-                        currentPaymentOrder.getPayerAccountNumber() + " -> "
-                                + currentPaymentOrder.getRecipientAccountNumber()
-                                + " : " + paymentValue,
-                        transactionStatus));
-                //Поставить в платежном поручении отметку банка
-                try {
-                    Files.write(currentPaymentOrderFile,
-                            ("\r\n\r\n" + transactionStatus + "\r\n" + timeOfTransaction).getBytes(),
-                            StandardOpenOption.APPEND);
+                    Files.createDirectories(inputPath);
                 } catch (IOException e) {
-                    System.out.println(e.getMessage());
-                }*/
-                //Переместить платежное поручение в архив
-                Path inputPath = Path.of(PaymentOrder.DEFAULT_PATH);
-                Path archivePath = Path.of(PaymentOrder.ARCHIVE_PATH);
-                //Создание директории
-                if (Files.notExists(inputPath)) {
-                    try {
-                        Files.createDirectories(inputPath);
-                    } catch (IOException e) {
-                        System.out.println(e.getMessage());
-                    }
+                    throw new FatalErrorException("создание директории платежных поручений");
                 }
-                if (Files.notExists(archivePath)) {
-                    try {
-                        Files.createDirectories(archivePath);
-                    } catch (IOException e) {
-                        System.out.println(e.getMessage());
-                    }
-                }
-                Path inputFile = inputPath.resolve(currentPaymentOrderFile.getFileName());
-                Path archiveFile = archivePath.resolve(currentPaymentOrderFile.getFileName());
+            }
+            if (Files.notExists(archivePath)) {
                 try {
-                    Files.move(inputFile, archiveFile, StandardCopyOption.REPLACE_EXISTING);
+                    Files.createDirectories(archivePath);
                 } catch (IOException e) {
-                    System.out.println(e.getMessage());
+                    throw new FatalErrorException("создание директории архива");
                 }
+            }
+            Path inputFile = inputPath.resolve(currentPaymentOrderFile.getFileName());
+            Path archiveFile = archivePath.resolve(currentPaymentOrderFile.getFileName());
+            try {
+                Files.move(inputFile, archiveFile, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                throw new FatalErrorException("архивирование платежных поручений");
             }
         }
     }
 
     /**
-     * Создает файл отчета по стандартному пути
+     * Выполняет платежное поручение из указанного файла
+     * @param paymentOrderFile -- файл платежного поручения
+     * @return отчет об исполнении
      */
-    public void generateReport() {
-        Path reportFilePath = Path.of(TransactionReport.DEFAULT_PATH);
-        //Создание директории
-        if (Files.notExists(reportFilePath)) {
+    private TransactionReport executePaymentOrder(Path paymentOrderFile) {
+        TransactionReport currentTransactionReport = new TransactionReport(
+                ZonedDateTime.now(ZoneId.of("UTC")),
+                paymentOrderFile.getFileName().toString(),
+                "",
+                "");
+        //Прочитать платежное поручение
+        StringBuilder readPaymentOrderFile = new StringBuilder();
+        try {
+            readPaymentOrderFile.append(Files.readString(paymentOrderFile));
+        } catch (IOException e) {
+            currentTransactionReport.setMatter(e.getMessage());
+            currentTransactionReport.setResult("Denied");
+            return  currentTransactionReport;
+        }
+        //Получить объект платежного поручения
+        Pattern paymentOrderPattern = Pattern.compile(PaymentOrder.REGEXP);
+        Matcher paymentOrderMatcher = paymentOrderPattern.matcher(readPaymentOrderFile);
+        if (paymentOrderMatcher.find()) {
+            PaymentOrder currentPaymentOrder = new PaymentOrder(paymentOrderMatcher.group());
             try {
-                Files.createDirectories(reportFilePath);
+                //Получить сумму перевода
+                long paymentValue = currentPaymentOrder.getPaymentValue();
+                //Уточнить отчет по транзакции
+                currentTransactionReport.setMatter(currentPaymentOrder.getPayerAccountNumber()
+                        + " -> " + currentPaymentOrder.getRecipientAccountNumber()
+                        + " : " + paymentValue);
+                //Получить счета плательщика и получателя
+                Account payerAccount = getAccount(currentPaymentOrder.getPayerAccountNumber());
+                Account recipientAccount = getAccount(currentPaymentOrder.getRecipientAccountNumber());
+                //Списать со счета плательщика
+                payerAccount.expense(paymentValue);
+                //Зачислить на счет получателя
+                recipientAccount.income(paymentValue);
+                //Обновить записи в базе данных
+                updateAccount(payerAccount);
+                updateAccount(recipientAccount);
+                currentTransactionReport.setResult("Executed");
+                return currentTransactionReport;
+            } catch (AccountNotFoundException
+                     | IllegalValueException
+                     | InsufficientFundsException
+                     | DataBaseConnectionException e) {
+                currentTransactionReport.setResult("Denied <" + e.getMessage() + ">");
+                return currentTransactionReport;
+            }
+        }
+        else {
+            currentTransactionReport.setMatter("The file does not contain payment order");
+            currentTransactionReport.setResult("Denied");
+            return  currentTransactionReport;
+        }
+    }
+
+    /**
+     * Создает файл отчета
+     * @throws FatalErrorException -- ошибка работы программы
+     */
+    public void generateReport() throws FatalErrorException {
+        //Создание директории
+        if (Files.notExists(this.reportFilePath)) {
+            try {
+                Files.createDirectories(this.reportFilePath);
             } catch (IOException e) {
-                System.out.println(e.getMessage());
+                throw new FatalErrorException("создание директории отчета");
             }
         }
         //Создание файла
-        Path reportFile = reportFilePath.resolve(TransactionReport.FILE_NAME
+        Path reportFile = this.reportFilePath.resolve(TransactionReport.FILE_NAME
                 + TransactionReport.FILE_EXTENSION);
         try {
             Files.writeString(reportFile, "", StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING);
             if (report.isEmpty()) {
-                Files.writeString(reportFile, "No payment orders executed", StandardOpenOption.APPEND);
+                Files.writeString(reportFile, "No payment orders were found", StandardOpenOption.APPEND);
             }
             else {
                 for (TransactionReport currentTransactionReport : report)
@@ -173,17 +188,22 @@ public final class TransactionProcessor {
                             + "\r\n", StandardOpenOption.APPEND);
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            throw new FatalErrorException("создание файла отчета");
         }
+    }
+
+    public void setReportFilePath(String path) {
+        this.reportFilePath = Path.of(path);
     }
 
     /**
      * Найти счет в базе данных
      * @param accountNumber -- запрашиваемый счет
      * @throws AccountNotFoundException -- счет не обнаружен
+     * @throws DataBaseConnectionException -- ошибка базы данных
      * @return запрашиваемый счет
      */
-    private Account getAccount(String accountNumber) throws AccountNotFoundException {
+    private Account getAccount(String accountNumber) throws AccountNotFoundException, DataBaseConnectionException {
         //Прочитать базу данных
         Path accountFilePath = Path.of(Account.DEFAULT_PATH);
         Path accountFile = accountFilePath.resolve(Account.FILE_NAME + Account.FILE_EXTENSION);
@@ -205,17 +225,17 @@ public final class TransactionProcessor {
             if (reqAccount.isEmpty()) throw new AccountNotFoundException("Account not found");
             return reqAccount.get(0);
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            throw new DataBaseConnectionException("Accounts Data Base Error");
         }
-        return null;
     }
 
     /**
      * Обновить информацию о счете в базе данных
      * @param account -- объект с новыми данными
      * @throws AccountNotFoundException -- счет не обнаружен
+     * @throws DataBaseConnectionException -- ошибка базы данных
      */
-    private void updateAccount(Account account) throws AccountNotFoundException {
+    private void updateAccount(Account account) throws AccountNotFoundException, DataBaseConnectionException {
         //Прочитать базу данных
         Path accountFilePath = Path.of(Account.DEFAULT_PATH);
         Path accountFile = accountFilePath.resolve(Account.FILE_NAME + Account.FILE_EXTENSION);
@@ -244,10 +264,10 @@ public final class TransactionProcessor {
                 for (Account currentAccount : accounts)
                     Files.writeString(accountFile, currentAccount.toString() + "\r\n", StandardOpenOption.APPEND);
             } catch (IOException e) {
-                System.out.println(e.getMessage());
+                throw new DataBaseConnectionException("Accounts Data Base Error");
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            throw new DataBaseConnectionException("Accounts Data Base Error");
         }
     }
 }

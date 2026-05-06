@@ -1,12 +1,13 @@
 /**
  * Classname    CourceProjectJavaCore
- * @version     0.06
+ * @version     0.07
  * @author      Aleksei Borzetsov
- * date         05.05.2026
+ * date         06.05.2026
  */
  
 package CourseProjectJavaCore;
 
+import CourseProjectJavaCore.exceptions.FatalErrorException;
 import CourseProjectJavaCore.exceptions.IllegalValueException;
 import CourseProjectJavaCore.model.Account;
 import CourseProjectJavaCore.model.PaymentOrder;
@@ -35,7 +36,7 @@ public final class CourseProjectJavaCore {
             try {
                 currentAccount.income((long) (Math.random() * 2000L));
             } catch (IllegalValueException e) {
-
+                System.out.println("Ошибка инициализации начального баланса: " + e.getMessage());
             }
         }
         //Запись в файл
@@ -123,6 +124,7 @@ public final class CourseProjectJavaCore {
         Scanner consoleScanner = new Scanner(System.in);
         System.out.println("Для вызова операции парсинга файлов введите 1");
         System.out.println("Для вызова операции вывода списка всех переводов из файла-отчета введите 2");
+        System.out.println("Для указания пути файла-отчета введите 3");
         System.out.println("Для выхода введите 0");
         int userValue = -1;
         do {
@@ -132,11 +134,23 @@ public final class CourseProjectJavaCore {
                     consoleScanner.nextLine();
                     if (userValue == 1) {
                         System.out.println("Выполняется операции парсинга файлов");
-                        transactionProcessor.executePaymentOrders();
-                        System.out.println("Готово");
+                        try {
+                            transactionProcessor.executePaymentOrders();
+                            System.out.println("Готово");
+                        } catch (FatalErrorException e) {
+                            System.out.println("Сбой работы программы: " + e.getMessage());
+                        }
                     } else if (userValue == 2) {
                         System.out.println("Выполняется вывод списка всех переводов из файла-отчета");
-                        transactionProcessor.generateReport();
+                        try {
+                            transactionProcessor.generateReport();
+                        } catch (FatalErrorException e) {
+                            System.out.println("Сбой работы программы: " + e.getMessage());
+                        }
+                        System.out.println("Готово");
+                    } else if (userValue == 3) {
+                        System.out.println("Введите путь для файла-отчета");
+                        transactionProcessor.setReportFilePath(consoleScanner.nextLine());
                         System.out.println("Готово");
                     }
                 }
