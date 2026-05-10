@@ -2,8 +2,10 @@
  * Classname    Main
  * @version     0.20
  * @author      Aleksei Borzetsov
- * date         10.09.2026
+ * date         10.05.2026
  */
+
+import HomeWork20.HomeWork20;
 
 public class Main {
     public static void main(String[] args){
