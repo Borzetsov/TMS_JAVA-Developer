@@ -7,6 +7,7 @@
 
 package HomeWork20;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class HomeWork20 {
@@ -83,5 +84,64 @@ public class HomeWork20 {
             System.out.println("Прерывание ожидания");
         }
         System.out.println();
+
+        System.out.println("Задача 2");
+        System.out.println("Начальное состояние массива:");
+        //Вывод массива в читаемом виде
+        System.out.print("[");
+        for (int i = 0; i < array.length - 1; i++){
+            System.out.printf("%2d, ", array[i]);
+        }
+        System.out.printf("%2d]", array[arrayLength - 1]);
+        System.out.println();
+
+        //Каждый алгоритм сортирует свою копию, иначе "абсурд и коррупция"
+        InsertionSort insertionSort = new InsertionSort(Arrays.copyOf(array, arrayLength));
+        SelectionSort selectionSort = new SelectionSort(Arrays.copyOf(array, arrayLength));
+        BubbleSort bubbleSort = new BubbleSort(Arrays.copyOf(array, arrayLength));
+
+        Thread insertionSortThread = new Thread(insertionSort);
+        Thread selsectionSortThread = new Thread(selectionSort);
+        Thread bubbleSortThread = new Thread(bubbleSort);
+
+        insertionSortThread.start();
+        selsectionSortThread.start();
+        bubbleSortThread.start();
+
+        try {
+            insertionSortThread.join(100);
+            selsectionSortThread.join(100);
+            bubbleSortThread.join(100);
+            //------------------------------------------------------------------------------
+            int[] insertionSortResult = insertionSort.getResult();
+            //Вывод массива в читаемом виде
+            System.out.print("[");
+            for (int i = 0; i < insertionSortResult.length - 1; i++){
+                System.out.printf("%2d, ", insertionSortResult[i]);
+            }
+            System.out.printf("%2d]", insertionSortResult[insertionSortResult.length - 1]);
+            System.out.println("\tСортировка \"вставками\":");
+            //------------------------------------------------------------------------------
+            int[] selectionSortResult = selectionSort.getResult();
+            //Вывод массива в читаемом виде
+            System.out.print("[");
+            for (int i = 0; i < selectionSortResult.length - 1; i++){
+                System.out.printf("%2d, ", selectionSortResult[i]);
+            }
+            System.out.printf("%2d]", selectionSortResult[selectionSortResult.length - 1]);
+            System.out.println("\tСортировка \"выбором\":");
+            //------------------------------------------------------------------------------
+            int[] bubbleSortResult = bubbleSort.getResult();
+            //Вывод массива в читаемом виде
+            System.out.print("[");
+            for (int i = 0; i < bubbleSortResult.length - 1; i++){
+                System.out.printf("%2d, ", bubbleSortResult[i]);
+            }
+            System.out.printf("%2d]", bubbleSortResult[bubbleSortResult.length - 1]);
+            System.out.println("\tСортировка \"пузырьком\":");
+            //------------------------------------------------------------------------------
+        } catch (InterruptedException e) {
+            System.out.println("Прерывание ожидания");
+        }
     }
 }
