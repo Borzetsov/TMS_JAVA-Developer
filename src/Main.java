@@ -1,13 +1,13 @@
 /**
  * Classname    Main
- * @version     0.16
+ * @version     0.17
  * @author      Aleksei Borzetsov
- * date         24.04.2026
+ * date         09.05.2026
  */
 
 public class Main {
     public static void main(String[] args){
-        HomeWork16 hw16 = new HomeWork16();
-        hw16.run();
+        HomeWork17 hw17 = new HomeWork17();
+        hw17.run();
     }
 }
