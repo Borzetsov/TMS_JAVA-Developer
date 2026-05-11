@@ -1,0 +1,57 @@
+/**
+ * Classname    PaymentOrder
+ * @version     0.05
+ * @author      Aleksei Borzetsov
+ * date         04.05.2026
+ */
+
+package CourseProjectJavaCore.model;
+
+/**
+ * Класс платежного поручения
+ */
+public final class PaymentOrder {
+    public static final String DEFAULT_PATH = "src\\CourseProjectJavaCore\\dataChannels\\input\\";
+    public static final String ARCHIVE_PATH = "src\\CourseProjectJavaCore\\dataChannels\\archive\\";
+
+    public static final String REGEXP =
+            "^Payer: [0-9]{5}-[0-9]{5} Recipient: [0-9]{5}-[0-9]{5} Value: [0-9]+\\b";
+
+    public static final String FILE_EXTENSION = ".txt";
+
+    private final String payerAccountNumber;
+    private final String recipientAccountNumber;
+    private final long paymentValue;
+
+    public PaymentOrder(String payerNumber, String recipientNumber, long value) {
+        this.payerAccountNumber = payerNumber;
+        this.recipientAccountNumber = recipientNumber;
+        this.paymentValue = value;
+    }
+
+    public PaymentOrder(String record) {
+        String[] splitRecord = record.split(" ");
+        this.payerAccountNumber = splitRecord[1];
+        this.recipientAccountNumber = splitRecord[3];
+        this.paymentValue = Long.parseLong(splitRecord[5]);
+    }
+
+    public String getPayerAccountNumber() {
+        return this.payerAccountNumber;
+    }
+
+    public String getRecipientAccountNumber() {
+        return this.recipientAccountNumber;
+    }
+
+    public long getPaymentValue() {
+        return this.paymentValue;
+    }
+
+    @Override
+    public String toString() {
+        return "Payer: " + this.payerAccountNumber
+                + " Recipient: " + this.recipientAccountNumber
+                + " Value: " + this.paymentValue;
+    }
+}
