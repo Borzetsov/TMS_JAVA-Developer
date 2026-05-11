@@ -1,13 +1,15 @@
 /**
  * Classname    Main
- * @version     0.18
+ * @version     0.20
  * @author      Aleksei Borzetsov
- * date         09.05.2026
+ * date         10.05.2026
  */
+
+import HomeWork20.HomeWork20;
 
 public class Main {
     public static void main(String[] args){
-        HomeWork18 hw18 = new HomeWork18();
-        hw18.run();
+        HomeWork20 hw20 = new HomeWork20();
+        hw20.run();
     }
 }
